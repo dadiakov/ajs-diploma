@@ -14,10 +14,13 @@ export default class GameController {
     // TODO: load saved stated from stateService
     this.gamePlay.drawUi(themes(this.level));
 
-    this.currentTeam = new Team(this.level).team;
+    this.currentTeam = new Team();
 
-    console.log(this.currentTeam)
-    this.gamePlay.redrawPositions(this.currentTeam);
+    this.gamePlay.redrawPositions(this.currentTeam.team);
+    console.log(this.currentTeam);
+    setTimeout(() => { this.currentTeam.levelUp(); console.log(this.currentTeam); this.gamePlay.redrawPositions(this.currentTeam.team); }, 2000);
+    setTimeout(() => { this.currentTeam.levelUp(); console.log(this.currentTeam); this.gamePlay.redrawPositions(this.currentTeam.team); }, 5000);
+    setTimeout(() => { this.currentTeam.levelUp(); console.log(this.currentTeam); this.gamePlay.redrawPositions(this.currentTeam.team); }, 7000);
   }
 
   onCellClick(index) {
