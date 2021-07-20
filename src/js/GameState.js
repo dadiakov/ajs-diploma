@@ -1,6 +1,7 @@
 export default class GameState {
   static from(object) {
-    // TODO: create object
+    this.player = object.player;
+    this.currentIndex = object.index;
     return null;
   }
 }
