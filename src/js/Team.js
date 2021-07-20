@@ -24,11 +24,11 @@ export default class Team {
   getIndex(player) {
     let index;
     if (player) {
-      do { index = Math.round(Math.random()) + Math.round(Math.random() * 8) * 8; } while (this.indexArray.includes(index));
+      do { index = Math.round(Math.random()) + Math.round(Math.random() * 8) * 8; } while (this.indexArray.includes(index) || index > 63);
       this.indexArray.push(index);
       return index;
     }
-    do { index = 6 + Math.round(Math.random()) + Math.round(Math.random() * 8) * 8; } while (this.indexArray.includes(index));
+    do { index = 6 + Math.round(Math.random()) + Math.round(Math.random() * 8) * 8; } while (this.indexArray.includes(index) || index > 63);
     this.indexArray.push(index);
     return index;
   }
