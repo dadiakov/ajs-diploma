@@ -1,3 +1,5 @@
+/* eslint-disable no-param-reassign */
+/* eslint-disable no-plusplus */
 /* eslint-disable max-len */
 import { generateTeam } from './generators';
 import PositionedCharacter from './PositionedCharacter';
@@ -9,7 +11,7 @@ import Undead from './Undead';
 import Vampire from './Vampire';
 
 export default class Team {
-  constructor(level) {
+  constructor() {
     this.team = [];
     this.indexArray = [];
     this.currentLevel = 1;
