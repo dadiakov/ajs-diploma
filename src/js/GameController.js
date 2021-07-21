@@ -156,7 +156,9 @@ export default class GameController {
         array.push(i);
       }
     }
-    return array;
+    const sortedArray = array.reduce((uniq, item) => (uniq.includes(item) ? uniq : [...uniq, item]), []);
+    sortedArray.splice(sortedArray.indexOf(cur), 1);
+    return sortedArray;
   }
 
   contrAttack() {
@@ -167,7 +169,7 @@ export default class GameController {
     const char = arrayOfChars[Math.floor(Math.random() * arrayOfChars.length)];
     GameState.moveArea = this.checkRange(char.position, char.character.moveRange);
     GameState.attackArea = this.checkRange(char.position, char.character.attackRange);
-    
+
     let ind;
 
     GameState.attackArea.forEach((index) => {
@@ -182,16 +184,18 @@ export default class GameController {
       const damage = Math.max(attacker.attack - target.defence, attacker.attack * 0.1);
       this.gamePlay.showDamage(ind, damage).then((responce) => {
         target.health -= damage;
-        console.log('я тут')
         if (target.health <= 0) {
           this.currentTeam.team.splice(this.currentTeam.team.findIndex((e) => e.position === ind), 1);
         }
         this.gamePlay.redrawPositions(this.currentTeam.team);
       });
-      } else {
-        char.position = GameState.moveArea[Math.floor(Math.random()*GameState.moveArea.length)];
-      }
+    } else {
+      let newPosition = 0;
+      do { newPosition = GameState.moveArea[Math.floor(Math.random() * GameState.moveArea.length)]; } while (this.currentTeam.team.some((e) => e.position === newPosition));
+      char.position = newPosition;
+      this.gamePlay.redrawPositions(this.currentTeam.team);
+    }
 
-     GameState.player === 'user' ? GameState.player = 'comp' : GameState.player = 'user';
+    GameState.player === 'user' ? GameState.player = 'comp' : GameState.player = 'user';
   }
 }
