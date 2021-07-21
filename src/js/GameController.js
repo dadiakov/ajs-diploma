@@ -42,14 +42,14 @@ export default class GameController {
   onCellClick(index) {
     const char = this.currentTeam.team[this.currentTeam.team.findIndex((e) => e.position === index)];
     this.currentTeam.team.forEach((e) => this.gamePlay.deselectCell(e.position));
-    //выбор персонажа
+    // выбор персонажа
     if (this.currentTeam.team.some((e) => e.position === index) && char.character.player === GameState.player) {
       GameState.char = char;
       GameState.moveArea = this.checkRange(char.position, char.character.moveRange);
       GameState.attackArea = this.checkRange(char.position, char.character.attackRange);
       this.gamePlay.selectCell(index);
       GameState.currentIndex = index;
-    //переход на пустую клетку
+    // переход на пустую клетку
     } else if (GameState.char && GameState.moveArea.includes(index)
         && !this.currentTeam.team.some((e) => e.position === index && e.character.player !== GameState.player)) {
       GameState.char.position = index;
@@ -59,24 +59,26 @@ export default class GameController {
       GameState.attackArea = [];
       GameState.player === 'user' ? GameState.player = 'comp' : GameState.player = 'user';
       this.gamePlay.redrawPositions(this.currentTeam.team);
+      if (GameState.player === 'comp') this.contrAttack();
     // реализация атаки
     } else if (GameState.char && GameState.attackArea.includes(index)
     && this.currentTeam.team.some((e) => e.position === index && e.character.player !== GameState.player)) {
-      let attacker = GameState.char.character;
-      let target = this.currentTeam.team.find(e => e.position === index).character;
-      let damage = Math.max(attacker.attack - target.defence, attacker.attack * 0.1);
-      this.gamePlay.showDamage(index, damage).then(responce => {
+      const attacker = GameState.char.character;
+      const target = this.currentTeam.team.find((e) => e.position === index).character;
+      const damage = Math.max(attacker.attack - target.defence, attacker.attack * 0.1);
+      this.gamePlay.showDamage(index, damage).then((responce) => {
         target.health -= damage;
         if (target.health <= 0) {
-          this.currentTeam.team.splice(this.currentTeam.team.findIndex(e => e.position === index), 1);
+          this.currentTeam.team.splice(this.currentTeam.team.findIndex((e) => e.position === index), 1);
           GameState.char = null;
         }
         GameState.player === 'user' ? GameState.player = 'comp' : GameState.player = 'user';
         GameState.char = null;
         this.gamePlay.redrawPositions(this.currentTeam.team);
+        if (GameState.player === 'comp') this.contrAttack();
       });
       return;
-  // тыкаем на пустую клетку
+      // тыкаем на пустую клетку
     } else {
       this.gamePlay.deselectCell(GameState.currentIndex);
       GameState.currentIndex = 0;
@@ -110,8 +112,11 @@ export default class GameController {
     }
 
     GameState.currentIndex = index;
+    if (!GameState.char && this.currentTeam.team.some((e) => e.position === index && e.character.player !== GameState.player)) {
+      this.gamePlay.setCursor(cursors.notallowed);
+    }
     if (GameState.char) {
-      if (!this.currentTeam.team.some((e) => e.position === GameState.currentIndex)) this.gamePlay.selectCell(index, 'green');
+      if (GameState.moveArea.includes(index) && !this.currentTeam.team.some((e) => e.position === GameState.currentIndex)) this.gamePlay.selectCell(index, 'green');
       if (!GameState.attackArea.includes(index) && !GameState.moveArea.includes(index)) {
         this.gamePlay.selectCell(index, 'auto');
         this.gamePlay.setCursor(cursors.notallowed);
@@ -152,5 +157,41 @@ export default class GameController {
       }
     }
     return array;
+  }
+
+  contrAttack() {
+    const arrayOfChars = [];
+    this.currentTeam.team.forEach((e) => {
+      if (e.character.player === 'comp') arrayOfChars.push(e);
+    });
+    const char = arrayOfChars[Math.floor(Math.random() * arrayOfChars.length)];
+    GameState.moveArea = this.checkRange(char.position, char.character.moveRange);
+    GameState.attackArea = this.checkRange(char.position, char.character.attackRange);
+    
+    let ind;
+
+    GameState.attackArea.forEach((index) => {
+      if (this.currentTeam.team.some((e) => (e.position === index) && (e.character.player !== 'comp'))) {
+        ind = index;
+      }
+    });
+
+    if (ind !== undefined) {
+      const attacker = char.character;
+      const target = this.currentTeam.team.find((e) => e.position === ind).character;
+      const damage = Math.max(attacker.attack - target.defence, attacker.attack * 0.1);
+      this.gamePlay.showDamage(ind, damage).then((responce) => {
+        target.health -= damage;
+        console.log('я тут')
+        if (target.health <= 0) {
+          this.currentTeam.team.splice(this.currentTeam.team.findIndex((e) => e.position === ind), 1);
+        }
+        this.gamePlay.redrawPositions(this.currentTeam.team);
+      });
+      } else {
+        char.position = GameState.moveArea[Math.floor(Math.random()*GameState.moveArea.length)];
+      }
+
+     GameState.player === 'user' ? GameState.player = 'comp' : GameState.player = 'user';
   }
 }
