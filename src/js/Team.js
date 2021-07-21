@@ -9,12 +9,14 @@ import Magician from './Magician';
 import Daemon from './Daemon';
 import Undead from './Undead';
 import Vampire from './Vampire';
+import GameState from './GameState';
 
 export default class Team {
   constructor() {
     this.team = [];
     this.indexArray = [];
     this.currentLevel = 1;
+    GameState.currentLevel = 1;
 
     const teamUser = generateTeam([Bowman, Swordsman, Magician], 1, 2);
     teamUser.forEach((e) => this.team.push(new PositionedCharacter(e, this.getIndex(1))));
@@ -38,6 +40,7 @@ export default class Team {
   levelUp() {
     this.indexArray = [];
     this.currentLevel++;
+    GameState.currentLevel++;
     this.team.forEach((char) => {
       char.character.level++;
       char.position = this.getIndex(1);
@@ -53,7 +56,7 @@ export default class Team {
         this.indexArray.splice(this.team.indexOf(char));
       }
     });
-    if (this.currentLevel === 2) {
+    if (GameState.currentLevel === 2) {
       const teamUser = generateTeam([Bowman, Swordsman, Magician], 1, 1);
       teamUser.forEach((e) => this.team.push(new PositionedCharacter(e, this.getIndex(1))));
 
@@ -61,7 +64,7 @@ export default class Team {
       teamComp.forEach((e) => this.team.push(new PositionedCharacter(e, this.getIndex())));
     }
 
-    if (this.currentLevel === 3) {
+    if (GameState.currentLevel === 3) {
       const teamUser = generateTeam([Bowman, Swordsman, Magician], 2, 2);
       teamUser.forEach((e) => this.team.push(new PositionedCharacter(e, this.getIndex(1))));
 
@@ -69,7 +72,7 @@ export default class Team {
       teamComp.forEach((e) => this.team.push(new PositionedCharacter(e, this.getIndex())));
     }
 
-    if (this.currentLevel === 4) {
+    if (GameState.currentLevel === 4) {
       const teamUser = generateTeam([Bowman, Swordsman, Magician], 3, 2);
       teamUser.forEach((e) => this.team.push(new PositionedCharacter(e, this.getIndex(1))));
 
