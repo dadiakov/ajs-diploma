@@ -34,9 +34,10 @@ export default class GameController {
     this.gamePlay.addCellLeaveListener(this.onCellLeave.bind(this));
     this.gamePlay.addCellClickListener(this.onCellClick.bind(this));
 
-    // setTimeout(() => { this.currentTeam.levelUp(); this.gamePlay.drawUi(themes(GameState.currentLevel)); this.gamePlay.redrawPositions(this.currentTeam.team); }, 2000);
-    // setTimeout(() => { this.currentTeam.levelUp(); this.gamePlay.drawUi(themes(GameState.currentLevel)); this.gamePlay.redrawPositions(this.currentTeam.team); }, 4000);
-    // setTimeout(() => { this.currentTeam.levelUp(); this.gamePlay.drawUi(themes(GameState.currentLevel)); this.gamePlay.redrawPositions(this.currentTeam.team); }, 6000);
+    //setTimeout(() => { this.currentTeam.levelUp(); this.gamePlay.drawUi(themes(GameState.currentLevel)); this.gamePlay.redrawPositions(this.currentTeam.team); }, 2000);
+    //setTimeout(() => { this.currentTeam.levelUp(); this.gamePlay.drawUi(themes(GameState.currentLevel)); this.gamePlay.redrawPositions(this.currentTeam.team); }, 4000);
+    //setTimeout(() => { this.currentTeam.levelUp(); this.gamePlay.drawUi(themes(GameState.currentLevel)); this.gamePlay.redrawPositions(this.currentTeam.team); }, 6000);
+    setTimeout(() => this.endGame(), 2000);
   }
 
   onCellClick(index) {
@@ -65,7 +66,7 @@ export default class GameController {
     && this.currentTeam.team.some((e) => e.position === index && e.character.player !== GameState.player)) {
       const attacker = GameState.char.character;
       const target = this.currentTeam.team.find((e) => e.position === index).character;
-      const damage = Math.max(attacker.attack - target.defence, attacker.attack * 0.1);
+      const damage = +Math.max(attacker.attack - target.defence, attacker.attack * 0.1).toFixed(2);
       this.gamePlay.showDamage(index, damage).then((responce) => {
         target.health -= damage;
         if (target.health <= 0) {
@@ -75,7 +76,11 @@ export default class GameController {
         GameState.player === 'user' ? GameState.player = 'comp' : GameState.player = 'user';
         GameState.char = null;
         this.gamePlay.redrawPositions(this.currentTeam.team);
-        if (GameState.player === 'comp') this.contrAttack();
+        if(!this.currentTeam.team.some(e => e.character.player === 'comp')) { 
+          this.checkWin();
+        } else {
+          if (GameState.player === 'comp') this.contrAttack();
+        }
       });
       return;
       // тыкаем на пустую клетку
@@ -188,6 +193,9 @@ export default class GameController {
           this.currentTeam.team.splice(this.currentTeam.team.findIndex((e) => e.position === ind), 1);
         }
         this.gamePlay.redrawPositions(this.currentTeam.team);
+        if(!this.currentTeam.team.some(e => e.character.player === 'user')) { 
+          this.endGame();
+        }
       });
     } else {
       let newPosition = 0;
@@ -198,4 +206,31 @@ export default class GameController {
 
     GameState.player === 'user' ? GameState.player = 'comp' : GameState.player = 'user';
   }
+
+  checkWin() {
+    if (GameState.currentLevel === 4) {
+      this.endGame;
+    } else {
+      this.currentTeam.levelUp();
+      this.gamePlay.drawUi(themes(GameState.currentLevel));
+      this.gamePlay.redrawPositions(this.currentTeam.team);
+      GameState.player = 'user';
+    }
+  }
+
+  endGame() {
+    //this.currentTeam = null;
+    this.currentTeam = {};
+    this.gamePlay.redrawPositions([]);
+    Array.from(document.querySelectorAll('.cell')).forEach(e => {
+      e.removeEventListener('mouseenter', (event) => this.onCellEnter(event));
+      e.removeEventListener('mouseleave', (event) => this.onCellLeave(event));
+      e.removeEventListener('click', (event) => this.onCellClick(event));
+    });
+  }
 }
+
+// cellEl.addEventListener('mouseenter', event => this.onCellEnter(event));
+// cellEl.addEventListener('mouseleave', event => this.onCellLeave(event));
+// cellEl.addEventListener('click', event => this.onCellClick(event));
+// this.boardEl.appendChild(cellEl);
