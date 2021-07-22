@@ -1,3 +1,7 @@
+/* eslint-disable no-loop-func */
+/* eslint-disable no-unused-vars */
+/* eslint-disable func-names */
+/* eslint-disable no-self-assign */
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-continue */
 /* eslint-disable no-plusplus */
@@ -14,7 +18,7 @@ export default class GameController {
   constructor(gamePlay, stateService) {
     this.gamePlay = gamePlay;
     this.stateService = stateService;
-    this.level = 1;
+   // this.level = 1;
   }
 
   init() {
@@ -33,11 +37,13 @@ export default class GameController {
     this.gamePlay.addCellEnterListener(this.onCellEnter.bind(this));
     this.gamePlay.addCellLeaveListener(this.onCellLeave.bind(this));
     this.gamePlay.addCellClickListener(this.onCellClick.bind(this));
+    this.gamePlay.addNewGameListener(this.newGame.bind(this));
 
     // setTimeout(() => { this.currentTeam.levelUp(); this.gamePlay.drawUi(themes(GameState.currentLevel)); this.gamePlay.redrawPositions(this.currentTeam.team); }, 2000);
     // setTimeout(() => { this.currentTeam.levelUp(); this.gamePlay.drawUi(themes(GameState.currentLevel)); this.gamePlay.redrawPositions(this.currentTeam.team); }, 4000);
     // setTimeout(() => { this.currentTeam.levelUp(); this.gamePlay.drawUi(themes(GameState.currentLevel)); this.gamePlay.redrawPositions(this.currentTeam.team); }, 6000);
-    //setTimeout(() => this.endGame(), 2000);
+    // setTimeout(() => { this.endGame(); }, 7000);
+    // setTimeout(() => this.endGame(), 2000);
   }
 
   onCellClick(index) {
@@ -76,11 +82,9 @@ export default class GameController {
         GameState.player === 'user' ? GameState.player = 'comp' : GameState.player = 'user';
         GameState.char = null;
         this.gamePlay.redrawPositions(this.currentTeam.team);
-        if(!this.currentTeam.team.some(e => e.character.player === 'comp')) { 
+        if (!this.currentTeam.team.some((e) => e.character.player === 'comp')) {
           this.checkWin();
-        } else {
-          if (GameState.player === 'comp') this.contrAttack();
-        }
+        } else if (GameState.player === 'comp') this.contrAttack();
       });
       return;
       // тыкаем на пустую клетку
@@ -121,7 +125,10 @@ export default class GameController {
       this.gamePlay.setCursor(cursors.notallowed);
     }
     if (GameState.char) {
-      if (GameState.moveArea.includes(index) && !this.currentTeam.team.some((e) => e.position === GameState.currentIndex)) this.gamePlay.selectCell(index, 'green');
+      if (GameState.moveArea.includes(index)
+      && !this.currentTeam.team.some((e) => e.position === GameState.currentIndex)) {
+        this.gamePlay.selectCell(index, 'green');
+      }
       if (!GameState.attackArea.includes(index) && !GameState.moveArea.includes(index)) {
         this.gamePlay.selectCell(index, 'auto');
         this.gamePlay.setCursor(cursors.notallowed);
@@ -193,13 +200,14 @@ export default class GameController {
           this.currentTeam.team.splice(this.currentTeam.team.findIndex((e) => e.position === ind), 1);
         }
         this.gamePlay.redrawPositions(this.currentTeam.team);
-        if(!this.currentTeam.team.some(e => e.character.player === 'user')) { 
+        if (!this.currentTeam.team.some((e) => e.character.player === 'user')) {
           this.endGame();
         }
       });
     } else {
       let newPosition = 0;
-      do { newPosition = GameState.moveArea[Math.floor(Math.random() * GameState.moveArea.length)]; } while (this.currentTeam.team.some((e) => e.position === newPosition));
+      do { newPosition = GameState.moveArea[Math.floor(Math.random() * GameState.moveArea.length)]; }
+      while (this.currentTeam.team.some((e) => e.position === newPosition));
       char.position = newPosition;
       this.gamePlay.redrawPositions(this.currentTeam.team);
     }
@@ -211,6 +219,7 @@ export default class GameController {
     if (GameState.currentLevel === 4) {
       this.endGame();
     } else {
+      this.addScore();
       this.currentTeam.levelUp();
       this.gamePlay.drawUi(themes(GameState.currentLevel));
       this.gamePlay.redrawPositions(this.currentTeam.team);
@@ -219,17 +228,35 @@ export default class GameController {
   }
 
   endGame() {
+    this.addScore();
     this.currentTeam.team = [];
-    Array.from(document.querySelectorAll('.cell')).forEach(e => {
-      e.addEventListener('mouseenter', function() {
+    Array.from(document.querySelectorAll('.cell')).forEach((e) => {
+      e.addEventListener('mouseenter', function () {
         this.outerHTML = this.outerHTML;
       }, false);
-      e.addEventListener('mouseleave', function() {
+      e.addEventListener('mouseleave', function () {
         this.outerHTML = this.outerHTML;
       }, false);
-      e.addEventListener('click', function() {
+      e.addEventListener('click', function () {
         this.outerHTML = this.outerHTML;
       }, false);
     });
+  }
+
+  addScore() {
+    let score = 0;
+    this.currentTeam.team.forEach((e) => {
+      if (e.character.player === 'user') score += e.character.health;
+      GameState.maxScore = Math.max(score, GameState.maxScore || score);
+    });
+    console.log(GameState.maxScore)
+  }
+
+  newGame() {
+    GameState.player = 'user';
+    GameState.currentLevel = 1;
+    this.gamePlay.drawUi(themes(GameState.currentLevel));
+    this.currentTeam = new Team();
+    this.gamePlay.redrawPositions(this.currentTeam.team);
   }
 }
