@@ -15,7 +15,6 @@ export default class Team {
   constructor() {
     this.team = [];
     this.indexArray = [];
-    //this.currentLevel = 1;
     GameState.currentLevel = 1;
 
     const teamUser = generateTeam([Bowman, Swordsman, Magician], 1, 2);
@@ -39,7 +38,6 @@ export default class Team {
 
   levelUp() {
     this.indexArray = [];
-    //this.currentLevel++;
     GameState.currentLevel++;
     this.team.forEach((char) => {
       char.character.level++;

@@ -18,32 +18,22 @@ export default class GameController {
   constructor(gamePlay, stateService) {
     this.gamePlay = gamePlay;
     this.stateService = stateService;
-   // this.level = 1;
   }
 
   init() {
-    // TODO: add event listeners to gamePlay events
-    // TODO: load saved stated from stateService
+    GameState.from({ player: 'user', currentLevel: 1 });
     this.gamePlay.drawUi(themes(GameState.currentLevel));
-    GameState.from({ player: 'user', index: 0 });
 
     this.currentTeam = new Team();
-    //   this.currentTeam.team[0].position = 29;
 
     this.gamePlay.redrawPositions(this.currentTeam.team);
-
-    console.log(this.currentTeam);
 
     this.gamePlay.addCellEnterListener(this.onCellEnter.bind(this));
     this.gamePlay.addCellLeaveListener(this.onCellLeave.bind(this));
     this.gamePlay.addCellClickListener(this.onCellClick.bind(this));
     this.gamePlay.addNewGameListener(this.newGame.bind(this));
-
-    // setTimeout(() => { this.currentTeam.levelUp(); this.gamePlay.drawUi(themes(GameState.currentLevel)); this.gamePlay.redrawPositions(this.currentTeam.team); }, 2000);
-    // setTimeout(() => { this.currentTeam.levelUp(); this.gamePlay.drawUi(themes(GameState.currentLevel)); this.gamePlay.redrawPositions(this.currentTeam.team); }, 4000);
-    // setTimeout(() => { this.currentTeam.levelUp(); this.gamePlay.drawUi(themes(GameState.currentLevel)); this.gamePlay.redrawPositions(this.currentTeam.team); }, 6000);
-    // setTimeout(() => { this.endGame(); }, 7000);
-    // setTimeout(() => this.endGame(), 2000);
+    this.gamePlay.addSaveGameListener(this.saveGame.bind(this));
+    this.gamePlay.addLoadGameListener(this.loadGame.bind(this));
   }
 
   onCellClick(index) {
@@ -249,7 +239,6 @@ export default class GameController {
       if (e.character.player === 'user') score += e.character.health;
       GameState.maxScore = Math.max(score, GameState.maxScore || score);
     });
-    console.log(GameState.maxScore)
   }
 
   newGame() {
@@ -257,6 +246,25 @@ export default class GameController {
     GameState.currentLevel = 1;
     this.gamePlay.drawUi(themes(GameState.currentLevel));
     this.currentTeam = new Team();
+    this.gamePlay.redrawPositions(this.currentTeam.team);
+  }
+
+  saveGame() {
+    const obj = {};
+    GameState.team = this.currentTeam.team;
+    Object.keys(GameState).forEach((key) => {
+      obj[key] = GameState[key];
+    });
+    this.stateService.save(obj);
+  }
+
+  loadGame() {
+    const obj = this.stateService.load();
+    this.currentTeam.team = obj.team;
+    GameState.player = obj.player;
+    GameState.currentLevel = obj.currentLevel;
+    GameState.maxScore = obj.maxScore;
+    this.gamePlay.drawUi(themes(GameState.currentLevel));
     this.gamePlay.redrawPositions(this.currentTeam.team);
   }
 }
