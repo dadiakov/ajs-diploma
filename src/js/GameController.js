@@ -118,10 +118,10 @@ export default class GameController {
         this.gamePlay.setCursor(cursors.notallowed);
       }
 
-      if(GameState.attackArea.includes(index) && this.checkNotPlayer(index)) {
+      if (GameState.attackArea.includes(index) && this.checkNotPlayer(index)) {
         this.gamePlay.setCursor(cursors.crosshair);
         this.gamePlay.selectCell(index, 'red');
-      };
+      }
     }
   }
 
