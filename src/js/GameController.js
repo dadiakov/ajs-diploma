@@ -34,9 +34,9 @@ export default class GameController {
     this.gamePlay.addCellLeaveListener(this.onCellLeave.bind(this));
     this.gamePlay.addCellClickListener(this.onCellClick.bind(this));
 
-    //setTimeout(() => { this.currentTeam.levelUp(); this.gamePlay.drawUi(themes(GameState.currentLevel)); this.gamePlay.redrawPositions(this.currentTeam.team); }, 2000);
-    //setTimeout(() => { this.currentTeam.levelUp(); this.gamePlay.drawUi(themes(GameState.currentLevel)); this.gamePlay.redrawPositions(this.currentTeam.team); }, 4000);
-    //setTimeout(() => { this.currentTeam.levelUp(); this.gamePlay.drawUi(themes(GameState.currentLevel)); this.gamePlay.redrawPositions(this.currentTeam.team); }, 6000);
+    // setTimeout(() => { this.currentTeam.levelUp(); this.gamePlay.drawUi(themes(GameState.currentLevel)); this.gamePlay.redrawPositions(this.currentTeam.team); }, 2000);
+    // setTimeout(() => { this.currentTeam.levelUp(); this.gamePlay.drawUi(themes(GameState.currentLevel)); this.gamePlay.redrawPositions(this.currentTeam.team); }, 4000);
+    // setTimeout(() => { this.currentTeam.levelUp(); this.gamePlay.drawUi(themes(GameState.currentLevel)); this.gamePlay.redrawPositions(this.currentTeam.team); }, 6000);
     //setTimeout(() => this.endGame(), 2000);
   }
 
@@ -220,7 +220,6 @@ export default class GameController {
 
   endGame() {
     this.currentTeam.team = [];
-    this.gamePlay.redrawPositions([]);
     Array.from(document.querySelectorAll('.cell')).forEach(e => {
       e.addEventListener('mouseenter', function() {
         this.outerHTML = this.outerHTML;
