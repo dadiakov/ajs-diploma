@@ -1,12 +1,8 @@
-/* eslint-disable no-loop-func */
-/* eslint-disable no-unused-vars */
-/* eslint-disable func-names */
-/* eslint-disable no-self-assign */
-/* eslint-disable no-unused-expressions */
-/* eslint-disable no-continue */
-/* eslint-disable no-plusplus */
-/* eslint-disable no-shadow */
-/* eslint-disable class-methods-use-this */
+/* eslint-disable linebreak-style *//* eslint-disable no-loop-func */
+/* eslint-disable no-unused-vars *//* eslint-disable func-names */
+/* eslint-disable no-self-assign *//* eslint-disable no-unused-expressions */
+/* eslint-disable no-continue *//* eslint-disable no-plusplus */
+/* eslint-disable no-shadow *//* eslint-disable class-methods-use-this */
 /* eslint-disable max-len */
 import themes from './themes';
 import Team from './Team';
@@ -37,39 +33,37 @@ export default class GameController {
   }
 
   onCellClick(index) {
-    const char = this.currentTeam.team[this.currentTeam.team.findIndex((e) => e.position === index)];
+    const char = this.getChar(index);
     this.currentTeam.team.forEach((e) => this.gamePlay.deselectCell(e.position));
     // выбор персонажа
-    if (this.currentTeam.team.some((e) => e.position === index) && char.character.player === GameState.player) {
+    if (this.checkIndex(index) && char.character.player === GameState.player) {
       GameState.char = char;
       GameState.moveArea = this.checkRange(char.position, char.character.moveRange);
       GameState.attackArea = this.checkRange(char.position, char.character.attackRange);
       this.gamePlay.selectCell(index);
       GameState.currentIndex = index;
     // переход на пустую клетку
-    } else if (GameState.char && GameState.moveArea.includes(index)
-        && !this.currentTeam.team.some((e) => e.position === index && e.character.player !== GameState.player)) {
+    } else if (GameState.char && GameState.moveArea.includes(index) && !this.checkNotPlayer(index)) {
       GameState.char.position = index;
       this.gamePlay.deselectCell(GameState.char.position);
       GameState.char = null;
       GameState.moveArea = [];
       GameState.attackArea = [];
-      GameState.player === 'user' ? GameState.player = 'comp' : GameState.player = 'user';
+      this.changePlayer();
       this.gamePlay.redrawPositions(this.currentTeam.team);
       if (GameState.player === 'comp') this.contrAttack();
     // реализация атаки
-    } else if (GameState.char && GameState.attackArea.includes(index)
-    && this.currentTeam.team.some((e) => e.position === index && e.character.player !== GameState.player)) {
+    } else if (GameState.char && GameState.attackArea.includes(index) && this.checkNotPlayer(index)) {
       const attacker = GameState.char.character;
       const target = this.currentTeam.team.find((e) => e.position === index).character;
       const damage = +Math.max(attacker.attack - target.defence, attacker.attack * 0.1).toFixed(2);
       this.gamePlay.showDamage(index, damage).then((responce) => {
         target.health -= damage;
         if (target.health <= 0) {
-          this.currentTeam.team.splice(this.currentTeam.team.findIndex((e) => e.position === index), 1);
+          this.deleteCharByIndex(index);
           GameState.char = null;
         }
-        GameState.player === 'user' ? GameState.player = 'comp' : GameState.player = 'user';
+        this.changePlayer();
         GameState.char = null;
         this.gamePlay.redrawPositions(this.currentTeam.team);
         if (!this.currentTeam.team.some((e) => e.character.player === 'comp')) {
@@ -86,15 +80,15 @@ export default class GameController {
       GameState.attackArea = [];
     }
     // выбираем персонажа вне доступа
-    if (char && this.currentTeam.team.some((e) => e.position === index) && char.character.player !== GameState.player) {
+    if (char && this.checkIndex(index) && char.character.player !== GameState.player) {
       GamePlay.showError('Выберите другого персонажа!');
     }
   }
 
   onCellEnter(index) {
-    const char = this.currentTeam.team[this.currentTeam.team.findIndex((e) => e.position === index)];
+    const char = this.getChar(index);
     let message = '';
-    if (this.currentTeam.team.some((e) => e.position === index)) {
+    if (this.checkIndex(index)) {
       this.gamePlay.setCursor(cursors.pointer);
       if (char.character.player !== GameState.player) {
         if (GameState.char && GameState.attackArea.includes(index)) {
@@ -111,7 +105,7 @@ export default class GameController {
     }
 
     GameState.currentIndex = index;
-    if (!GameState.char && this.currentTeam.team.some((e) => e.position === index && e.character.player !== GameState.player)) {
+    if (!GameState.char && this.checkNotPlayer(index)) {
       this.gamePlay.setCursor(cursors.notallowed);
     }
     if (GameState.char) {
@@ -119,22 +113,27 @@ export default class GameController {
       && !this.currentTeam.team.some((e) => e.position === GameState.currentIndex)) {
         this.gamePlay.selectCell(index, 'green');
       }
-      if (!GameState.attackArea.includes(index) && !GameState.moveArea.includes(index)) {
+      if (!GameState.moveArea.includes(index)) {
         this.gamePlay.selectCell(index, 'auto');
         this.gamePlay.setCursor(cursors.notallowed);
+      }
+
+      if (GameState.attackArea.includes(index) && this.checkNotPlayer(index)) {
+        this.gamePlay.setCursor(cursors.crosshair);
+        this.gamePlay.selectCell(index, 'red');
       }
     }
   }
 
   onCellLeave(index) {
-    const char = this.currentTeam.team[this.currentTeam.team.findIndex((e) => e.position === index)];
+    const char = this.getChar(index);
     this.gamePlay.setCursor(cursors.auto);
-    if (this.currentTeam.team.some((e) => e.position === index)) {
+    if (this.checkIndex(index)) {
       this.gamePlay.hideCellTooltip(index);
     } else {
       this.gamePlay.deselectCell(GameState.currentIndex);
     }
-    if (this.currentTeam.team.some((e) => e.position === index) && char.character.player !== GameState.player) {
+    if (this.checkIndex(index) && char.character.player !== GameState.player) {
       this.gamePlay.deselectCell(GameState.currentIndex);
     }
   }
@@ -187,7 +186,7 @@ export default class GameController {
       this.gamePlay.showDamage(ind, damage).then((responce) => {
         target.health -= damage;
         if (target.health <= 0) {
-          this.currentTeam.team.splice(this.currentTeam.team.findIndex((e) => e.position === ind), 1);
+          this.deleteCharByIndex(ind);
         }
         this.gamePlay.redrawPositions(this.currentTeam.team);
         if (!this.currentTeam.team.some((e) => e.character.player === 'user')) {
@@ -202,7 +201,7 @@ export default class GameController {
       this.gamePlay.redrawPositions(this.currentTeam.team);
     }
 
-    GameState.player === 'user' ? GameState.player = 'comp' : GameState.player = 'user';
+    this.changePlayer();
   }
 
   checkWin() {
@@ -266,5 +265,25 @@ export default class GameController {
     GameState.maxScore = obj.maxScore;
     this.gamePlay.drawUi(themes(GameState.currentLevel));
     this.gamePlay.redrawPositions(this.currentTeam.team);
+  }
+
+  checkIndex(index) {
+    return this.currentTeam.team.some((e) => e.position === index);
+  }
+
+  checkNotPlayer(index) {
+    return this.currentTeam.team.some((e) => e.position === index && e.character.player !== GameState.player);
+  }
+
+  getChar(index) {
+    return this.currentTeam.team[this.currentTeam.team.findIndex((e) => e.position === index)];
+  }
+
+  changePlayer() {
+    GameState.player === 'user' ? GameState.player = 'comp' : GameState.player = 'user';
+  }
+
+  deleteCharByIndex(index) {
+    this.currentTeam.team.splice(this.currentTeam.team.findIndex((e) => e.position === index), 1);
   }
 }
