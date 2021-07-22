@@ -113,10 +113,15 @@ export default class GameController {
       && !this.currentTeam.team.some((e) => e.position === GameState.currentIndex)) {
         this.gamePlay.selectCell(index, 'green');
       }
-      if (!GameState.attackArea.includes(index) && !GameState.moveArea.includes(index)) {
+      if (!GameState.moveArea.includes(index)) {
         this.gamePlay.selectCell(index, 'auto');
         this.gamePlay.setCursor(cursors.notallowed);
       }
+
+      if(GameState.attackArea.includes(index) && this.checkNotPlayer(index)) {
+        this.gamePlay.setCursor(cursors.crosshair);
+        this.gamePlay.selectCell(index, 'red');
+      };
     }
   }
 
