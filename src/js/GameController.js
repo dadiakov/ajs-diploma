@@ -37,7 +37,7 @@ export default class GameController {
     //setTimeout(() => { this.currentTeam.levelUp(); this.gamePlay.drawUi(themes(GameState.currentLevel)); this.gamePlay.redrawPositions(this.currentTeam.team); }, 2000);
     //setTimeout(() => { this.currentTeam.levelUp(); this.gamePlay.drawUi(themes(GameState.currentLevel)); this.gamePlay.redrawPositions(this.currentTeam.team); }, 4000);
     //setTimeout(() => { this.currentTeam.levelUp(); this.gamePlay.drawUi(themes(GameState.currentLevel)); this.gamePlay.redrawPositions(this.currentTeam.team); }, 6000);
-    setTimeout(() => this.endGame(), 2000);
+    //setTimeout(() => this.endGame(), 2000);
   }
 
   onCellClick(index) {
@@ -209,7 +209,7 @@ export default class GameController {
 
   checkWin() {
     if (GameState.currentLevel === 4) {
-      this.endGame;
+      this.endGame();
     } else {
       this.currentTeam.levelUp();
       this.gamePlay.drawUi(themes(GameState.currentLevel));
@@ -219,18 +219,18 @@ export default class GameController {
   }
 
   endGame() {
-    //this.currentTeam = null;
-    this.currentTeam = {};
+    this.currentTeam.team = [];
     this.gamePlay.redrawPositions([]);
     Array.from(document.querySelectorAll('.cell')).forEach(e => {
-      e.removeEventListener('mouseenter', (event) => this.onCellEnter(event));
-      e.removeEventListener('mouseleave', (event) => this.onCellLeave(event));
-      e.removeEventListener('click', (event) => this.onCellClick(event));
+      e.addEventListener('mouseenter', function() {
+        this.outerHTML = this.outerHTML;
+      }, false);
+      e.addEventListener('mouseleave', function() {
+        this.outerHTML = this.outerHTML;
+      }, false);
+      e.addEventListener('click', function() {
+        this.outerHTML = this.outerHTML;
+      }, false);
     });
   }
 }
-
-// cellEl.addEventListener('mouseenter', event => this.onCellEnter(event));
-// cellEl.addEventListener('mouseleave', event => this.onCellLeave(event));
-// cellEl.addEventListener('click', event => this.onCellClick(event));
-// this.boardEl.appendChild(cellEl);
