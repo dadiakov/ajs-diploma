@@ -88,7 +88,7 @@ test('Проверка тегиронного шаблона', () => {
 
 jest.mock('../GameStateService');
 
-test('should be not ok', () => {
+test('should be ok', () => {
   gameCtrl.stateService.load.mockReturnValue(
     {
       team: [
