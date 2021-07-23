@@ -44,7 +44,7 @@ export default class Team {
       char.character.level++;
       char.position = this.getIndex(1);
 
-      const attackAfter = Math.max(char.character.attack, char.character.attack * (1.8 - char.character.health / 100));
+      const attackAfter = +(Math.max(char.character.attack, char.character.attack * (1.8 - char.character.health / 100))).toFixed(2);
       char.character.attack = attackAfter;
 
       char.character.health += 80;

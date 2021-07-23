@@ -136,6 +136,9 @@ export default class GameController {
         this.gamePlay.selectCell(index);
       }
     }
+    if (!GameState.char) {
+      this.gamePlay.selectCell(index, 'auto');
+    }
   }
 
   onCellLeave(index) {
