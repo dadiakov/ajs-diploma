@@ -109,18 +109,31 @@ export default class GameController {
       this.gamePlay.setCursor(cursors.notallowed);
     }
     if (GameState.char) {
+      if (!this.checkNotPlayer(index)) {
+        this.gamePlay.setCursor(cursors.pointer);
+      }
+
       if (GameState.moveArea.includes(index)
       && !this.currentTeam.team.some((e) => e.position === GameState.currentIndex)) {
         this.gamePlay.selectCell(index, 'green');
       }
-      if (!GameState.moveArea.includes(index)) {
+      if (!GameState.moveArea.includes(index)
+        || (!GameState.attackArea.includes(index) && this.checkNotPlayer(index))) {
         this.gamePlay.selectCell(index, 'auto');
         this.gamePlay.setCursor(cursors.notallowed);
+      }
+
+      if (!this.checkNotPlayer(index) && this.checkIndex(index)) {
+        this.gamePlay.setCursor(cursors.pointer);
       }
 
       if (GameState.attackArea.includes(index) && this.checkNotPlayer(index)) {
         this.gamePlay.setCursor(cursors.crosshair);
         this.gamePlay.selectCell(index, 'red');
+      }
+
+      if (!this.checkNotPlayer(index) && this.checkIndex(index) && GameState.char.position === index) {
+        this.gamePlay.selectCell(index);
       }
     }
   }
